@@ -665,9 +665,23 @@
 
         let currentQuestion = 0;
         let answers = [];
+        let shuffledQuestions = [];
+
+        // Fonction de mélange (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
 
         function initQuiz() {
-            answers = questions.map(q => ({
+            // Mélanger les questions à chaque nouveau quiz
+            shuffledQuestions = shuffleArray(questions);
+            
+            answers = shuffledQuestions.map(q => ({
                 questionId: q.id,
                 subAnswers: q.subQuestions.map(() => ({
                     answer: null,
@@ -680,11 +694,11 @@
 
         function displayQuestion() {
             const container = document.getElementById('quizContainer');
-            const question = questions[currentQuestion];
+            const question = shuffledQuestions[currentQuestion];
             
             let html = `
                 <div class="question-card">
-                    <span class="question-number">Question ${currentQuestion + 1} / ${questions.length}</span>
+                    <span class="question-number">Question ${currentQuestion + 1} / ${shuffledQuestions.length}</span>
                     <h2 class="question-title">${question.title}</h2>
             `;
 
@@ -724,7 +738,7 @@
                         ${currentQuestion > 0 ? 
                             '<button class="nav-btn secondary" onclick="previousQuestion()">← Précédent</button>' : 
                             '<button class="nav-btn secondary" disabled>← Précédent</button>'}
-                        ${currentQuestion < questions.length - 1 ? 
+                        ${currentQuestion < shuffledQuestions.length - 1 ? 
                             '<button class="nav-btn primary" onclick="validateAndNext()">Valider et Suivant →</button>' : 
                             '<button class="nav-btn primary" onclick="finishQuiz()">Terminer le Quiz</button>'}
                     </div>
@@ -758,7 +772,7 @@
         }
 
         function validateCurrentQuestion() {
-            const question = questions[currentQuestion];
+            const question = shuffledQuestions[currentQuestion];
             let allValid = true;
 
             question.subQuestions.forEach((subQ, idx) => {
@@ -824,7 +838,7 @@
             let incorrectAnswers = 0;
             let incompleteAnswers = 0;
 
-            questions.forEach((q, qIdx) => {
+            shuffledQuestions.forEach((q, qIdx) => {
                 q.subQuestions.forEach((subQ, subIdx) => {
                     totalSubQuestions++;
                     const feedback = answers[qIdx].subAnswers[subIdx].feedback;
@@ -861,10 +875,10 @@
         }
 
         function updateProgress() {
-            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            const progress = ((currentQuestion + 1) / shuffledQuestions.length) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('progressText').textContent = 
-                `Question ${currentQuestion + 1} sur ${questions.length}`;
+                `Question ${currentQuestion + 1} sur ${shuffledQuestions.length}`;
         }
 
         function restartQuiz() {
@@ -914,7 +928,7 @@
             // Score global
             let totalSubQuestions = 0;
             let correctAnswers = 0;
-            questions.forEach((q, qIdx) => {
+            shuffledQuestions.forEach((q, qIdx) => {
                 q.subQuestions.forEach((subQ, subIdx) => {
                     totalSubQuestions++;
                     if (answers[qIdx].subAnswers[subIdx].feedback === 'correct') {
@@ -937,7 +951,7 @@
             yPosition += 35;
 
             // Questions et réponses
-            questions.forEach((q, qIdx) => {
+            shuffledQuestions.forEach((q, qIdx) => {
                 if (yPosition > pageHeight - 60) {
                     pdf.addPage();
                     yPosition = margin;
