@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Incoterms 2020 - BTS Commerce International</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --secondary: #2c5282;
+            --accent: #ed8936;
+            --success: #38a169;
+            --error: #e53e3e;
+            --warning: #dd6b20;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1em;
+        }
+
+        .progress-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .question-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .sub-question {
+            background: var(--bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .sub-question:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transform: translateX(2px);
+        }
+
+        .sub-question-text {
+            font-size: 1.05em;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .answer-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .answer-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--text);
+        }
+
+        .answer-btn:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.2);
+        }
+
+        .answer-btn.selected-yes {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            border-color: #38a169;
+            color: white;
+        }
+
+        .answer-btn.selected-no {
+            background: linear-gradient(135deg, #fc8181, #e53e3e);
+            border-color: #e53e3e;
+            color: white;
+        }
+
+        .precision-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .precision-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.1);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid var(--success);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid var(--error);
+            display: block;
+        }
+
+        .feedback.incomplete {
+            background: #feebc8;
+            color: #7c2d12;
+            border-left: 4px solid var(--warning);
+            display: block;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(26, 54, 93, 0.3);
+        }
+
+        .nav-btn.secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .nav-btn.secondary:hover {
+            background: var(--text-light);
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .results-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            text-align: center;
+            display: none;
+        }
+
+        .results-card.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .results-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .score-display {
+            font-size: 4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .results-actions button {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .question-card {
+                padding: 25px;
+            }
+            
+            .answer-options {
+                flex-direction: column;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+
+            .results-actions {
+                flex-direction: column;
+            }
+
+            .results-actions button {
+                min-width: 100%;
+            }
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 12px;
+            border-top: 4px solid var(--accent);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quiz Incoterms 2020</h1>
+            <p>BTS Commerce International - Entraînement pratique</p>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Question 1 sur 13</div>
+        </div>
+
+        <div id="quizContainer"></div>
+
+        <div class="results-card" id="resultsCard">
+            <h2 class="results-title">Quiz terminé !</h2>
+            <div class="score-display" id="finalScore"></div>
+            <div class="score-breakdown" id="scoreBreakdown"></div>
+            <div class="results-actions">
+                <button class="nav-btn primary" onclick="exportToPDF()">📄 Exporter en PDF</button>
+                <button class="nav-btn secondary" onclick="restartQuiz()">🔄 Recommencer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                title: "Vous importez des marchandises FAS Dakar à destination de Rouen",
+                subQuestions: [
+                    {
+                        text: "Devez-vous conclure le contrat de transport ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "Qui organise le transport en FAS ?"
+                    },
+                    {
+                        text: "Devez-vous effectuer les opérations de dédouanement export ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Qui dédouane à l'export en FAS ?"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Vous devez exporter des marchandises CPT Calcutta (Inde)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous choisir un mode de transport principal particulier ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Le CPT est-il multimodal ou unimodal ?"
+                    },
+                    {
+                        text: "Devez-vous prendre en charge la livraison au domicile de l'acheteur ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Où s'arrête votre responsabilité en CPT ?"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Vous exportez des marchandises DAP Linz (Autriche), transport par route",
+                subQuestions: [
+                    {
+                        text: "Devez-vous fournir à l'acheteur le document de transport couvrant la marchandise jusqu'à la destination finale ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    },
+                    {
+                        text: "Devez-vous accomplir des formalités douanières ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "Lesquelles : export, import ou les deux ?"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Vous importez des marchandises DPU Bordeaux en provenance de Montréal (Canada)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous supporter les risques de perte durant le transport principal ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Qui supporte les risques en DPU ?"
+                    },
+                    {
+                        text: "Devez-vous payer les droits de douane à l'entrée en France ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "DPU inclut-il le dédouanement import ?"
+                    },
+                    {
+                        text: "Devez-vous supporter les frais de déchargement à destination ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Que signifie 'Delivered at Place Unloaded' ?"
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "Vous exportez des marchandises DDP Perth (Australie)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous payer les droits et taxes en Australie ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    },
+                    {
+                        text: "Devez-vous prendre en charge le déchargement pour votre client ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "DDP inclut-il le déchargement ?"
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "Vous exportez des marchandises DPU Luanda (Angola)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous fournir la licence d'importation ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Qui obtient les licences d'importation ?"
+                    },
+                    {
+                        text: "Devez-vous prendre en charge les opérations de déchargement à destination ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    }
+                ]
+            },
+            {
+                id: 7,
+                title: "Vous importez une marchandise CIF Marseille en provenance de Djeddah (Arabie Saoudite)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous supporter les risques du transport principal ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "En CIF, qui supporte les risques du transport maritime ?"
+                    },
+                    {
+                        text: "Devez-vous payer les frais de déchargement à Marseille ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "Le CIF inclut-il le déchargement au port ?"
+                    }
+                ]
+            },
+            {
+                id: 8,
+                title: "Vous exportez des marchandises CFR Paramaribo (Surinam)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous conclure le contrat d'assurance couvrant le transport principal ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Quelle est la différence entre CFR et CIF ?"
+                    },
+                    {
+                        text: "Devez-vous supporter les frais supplémentaires dus à l'encombrement du port de destination en raison d'une émeute ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Où se fait le transfert de risques en CFR ?"
+                    }
+                ]
+            },
+            {
+                id: 9,
+                title: "Vous exportez des marchandises FCA locaux de l'exportateur à destination de Brazzaville (Congo)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous obtenir la licence d'exportation à vos frais ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    },
+                    {
+                        text: "Devez-vous organiser le chargement de la marchandise pour le pré-acheminement ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "En FCA locaux vendeur, qui charge ?"
+                    }
+                ]
+            },
+            {
+                id: 10,
+                title: "Vous exportez des marchandises CIP Beyrouth (Liban)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous fournir une assurance risque minimal ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Quel niveau de couverture en CIP depuis Incoterms 2020 ?"
+                    },
+                    {
+                        text: "Devez-vous supporter les frais de formalités douanières d'importation ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "CIP inclut-il le dédouanement import ?"
+                    }
+                ]
+            },
+            {
+                id: 11,
+                title: "Vous importez des marchandises FOB Le Cap (Afrique du Sud) à destination de Clermont-Ferrand",
+                subQuestions: [
+                    {
+                        text: "Devez-vous choisir la compagnie de transport maritime ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    },
+                    {
+                        text: "Devez-vous supporter les frais de transport durant le préacheminement jusqu'au Cap ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "En FOB, qui paie le pré-acheminement ?"
+                    }
+                ]
+            },
+            {
+                id: 12,
+                title: "Vous importez des marchandises DPU Lyon Saint-Exupéry en provenance de Moscou (Russie) par avion",
+                subQuestions: [
+                    {
+                        text: "Devez-vous payer le transport de Saint-Exupéry à vos locaux (vous êtes à Saint-Étienne) ?",
+                        correctAnswer: "oui",
+                        needsPrecision: true,
+                        precisionHint: "Où se termine la livraison en DPU ?"
+                    },
+                    {
+                        text: "Devez-vous accomplir les formalités douanières à l'exportation ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Qui dédouane à l'export ?"
+                    }
+                ]
+            },
+            {
+                id: 13,
+                title: "Vous exportez des marchandises FCA locaux de l'exportateur Grenoble à destination de Lima (Pérou)",
+                subQuestions: [
+                    {
+                        text: "Devez-vous réaliser l'empotage de la marchandise (chargement camion) ?",
+                        correctAnswer: "oui",
+                        needsPrecision: false
+                    },
+                    {
+                        text: "Devez-vous supporter les risques d'avaries durant le préacheminement jusqu'au port d'embarquement ?",
+                        correctAnswer: "non",
+                        needsPrecision: true,
+                        precisionHint: "Où se fait le transfert de risques en FCA locaux vendeur ?"
+                    }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function initQuiz() {
+            answers = questions.map(q => ({
+                questionId: q.id,
+                subAnswers: q.subQuestions.map(() => ({
+                    answer: null,
+                    precision: '',
+                    feedback: null
+                }))
+            }));
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const container = document.getElementById('quizContainer');
+            const question = questions[currentQuestion];
+            
+            let html = `
+                <div class="question-card">
+                    <span class="question-number">Question ${currentQuestion + 1} / ${questions.length}</span>
+                    <h2 class="question-title">${question.title}</h2>
+            `;
+
+            question.subQuestions.forEach((subQ, idx) => {
+                const userAnswer = answers[currentQuestion].subAnswers[idx];
+                const feedbackClass = userAnswer.feedback ? userAnswer.feedback : '';
+                const feedbackText = getFeedbackText(userAnswer.feedback);
+                
+                html += `
+                    <div class="sub-question">
+                        <div class="sub-question-text">${subQ.text}</div>
+                        <div class="answer-options">
+                            <button class="answer-btn ${userAnswer.answer === 'oui' ? 'selected-yes' : ''}" 
+                                    onclick="selectAnswer(${idx}, 'oui')">
+                                ✓ OUI
+                            </button>
+                            <button class="answer-btn ${userAnswer.answer === 'non' ? 'selected-no' : ''}" 
+                                    onclick="selectAnswer(${idx}, 'non')">
+                                ✗ NON
+                            </button>
+                        </div>
+                        ${subQ.needsPrecision ? `
+                            <textarea class="precision-input" 
+                                      placeholder="Précisions (justifiez votre réponse)..."
+                                      onchange="savePrecision(${idx}, this.value)"
+                                      oninput="clearFeedback(${idx})">${userAnswer.precision}</textarea>
+                        ` : ''}
+                        <div class="feedback ${feedbackClass}" id="feedback-${idx}">
+                            ${feedbackText}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    <div class="navigation">
+                        ${currentQuestion > 0 ? 
+                            '<button class="nav-btn secondary" onclick="previousQuestion()">← Précédent</button>' : 
+                            '<button class="nav-btn secondary" disabled>← Précédent</button>'}
+                        ${currentQuestion < questions.length - 1 ? 
+                            '<button class="nav-btn primary" onclick="validateAndNext()">Valider et Suivant →</button>' : 
+                            '<button class="nav-btn primary" onclick="finishQuiz()">Terminer le Quiz</button>'}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            updateProgress();
+        }
+
+        function selectAnswer(subIdx, answer) {
+            const userAnswer = answers[currentQuestion].subAnswers[subIdx];
+            userAnswer.answer = answer;
+            clearFeedback(subIdx);
+            displayQuestion();
+        }
+
+        function savePrecision(subIdx, value) {
+            answers[currentQuestion].subAnswers[subIdx].precision = value;
+        }
+
+        function clearFeedback(subIdx) {
+            answers[currentQuestion].subAnswers[subIdx].feedback = null;
+        }
+
+        function validateAndNext() {
+            if (validateCurrentQuestion()) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function validateCurrentQuestion() {
+            const question = questions[currentQuestion];
+            let allValid = true;
+
+            question.subQuestions.forEach((subQ, idx) => {
+                const userAnswer = answers[currentQuestion].subAnswers[idx];
+                
+                if (!userAnswer.answer) {
+                    allValid = false;
+                    userAnswer.feedback = 'incomplete';
+                } else {
+                    const isCorrectAnswer = userAnswer.answer === subQ.correctAnswer;
+                    const hasPrecision = !subQ.needsPrecision || (userAnswer.precision && userAnswer.precision.trim().length > 10);
+                    
+                    if (isCorrectAnswer && hasPrecision) {
+                        userAnswer.feedback = 'correct';
+                    } else if (isCorrectAnswer && !hasPrecision) {
+                        userAnswer.feedback = 'incomplete';
+                        allValid = false;
+                    } else {
+                        userAnswer.feedback = 'incorrect';
+                        allValid = false;
+                    }
+                }
+            });
+
+            displayQuestion();
+            return allValid;
+        }
+
+        function getFeedbackText(feedback) {
+            if (!feedback) return '';
+            
+            switch(feedback) {
+                case 'correct':
+                    return '✓ Réponse correcte !';
+                case 'incorrect':
+                    return '✗ Réponse incorrecte. Révisez cette notion.';
+                case 'incomplete':
+                    return '⚠ Réponse incomplète. Veuillez justifier votre réponse ou vérifier votre choix.';
+                default:
+                    return '';
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            validateCurrentQuestion();
+            
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            
+            calculateAndDisplayResults();
+        }
+
+        function calculateAndDisplayResults() {
+            let totalSubQuestions = 0;
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+            let incompleteAnswers = 0;
+
+            questions.forEach((q, qIdx) => {
+                q.subQuestions.forEach((subQ, subIdx) => {
+                    totalSubQuestions++;
+                    const feedback = answers[qIdx].subAnswers[subIdx].feedback;
+                    
+                    if (feedback === 'correct') correctAnswers++;
+                    else if (feedback === 'incorrect') incorrectAnswers++;
+                    else incompleteAnswers++;
+                });
+            });
+
+            const percentage = Math.round((correctAnswers / totalSubQuestions) * 100);
+            
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            document.getElementById('scoreBreakdown').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${correctAnswers}</div>
+                    <div class="stat-label">Réponses correctes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${incorrectAnswers}</div>
+                    <div class="stat-label">Réponses incorrectes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${incompleteAnswers}</div>
+                    <div class="stat-label">Réponses incomplètes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalSubQuestions}</div>
+                    <div class="stat-label">Total questions</div>
+                </div>
+            `;
+            
+            document.getElementById('resultsCard').classList.add('show');
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `Question ${currentQuestion + 1} sur ${questions.length}`;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            answers = [];
+            document.getElementById('resultsCard').classList.remove('show');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
+            initQuiz();
+        }
+
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            let yPosition = margin;
+
+            // En-tête
+            pdf.setFillColor(26, 54, 93);
+            pdf.rect(0, 0, pageWidth, 35, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(20);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Quiz Incoterms 2020', margin, 20);
+            pdf.setFontSize(11);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('BTS Commerce International - Resultats', margin, 28);
+
+            yPosition = 50;
+            pdf.setTextColor(0, 0, 0);
+
+            // Date
+            const date = new Date().toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            pdf.setFontSize(9);
+            pdf.text(`Date: ${date}`, margin, yPosition);
+            yPosition += 15;
+
+            // Score global
+            let totalSubQuestions = 0;
+            let correctAnswers = 0;
+            questions.forEach((q, qIdx) => {
+                q.subQuestions.forEach((subQ, subIdx) => {
+                    totalSubQuestions++;
+                    if (answers[qIdx].subAnswers[subIdx].feedback === 'correct') {
+                        correctAnswers++;
+                    }
+                });
+            });
+            const percentage = Math.round((correctAnswers / totalSubQuestions) * 100);
+
+            pdf.setFillColor(247, 250, 252);
+            pdf.roundedRect(margin, yPosition, pageWidth - 2 * margin, 25, 3, 3, 'F');
+            pdf.setFontSize(12);
+            pdf.setFont(undefined, 'bold');
+            pdf.text(`Score global: ${percentage}% (${correctAnswers}/${totalSubQuestions})`, margin + 5, yPosition + 10);
+            pdf.setFont(undefined, 'normal');
+            pdf.setFontSize(9);
+            pdf.text(`Reponses correctes: ${correctAnswers} | Incorrectes: ${totalSubQuestions - correctAnswers}`, 
+                     margin + 5, yPosition + 18);
+            
+            yPosition += 35;
+
+            // Questions et réponses
+            questions.forEach((q, qIdx) => {
+                if (yPosition > pageHeight - 60) {
+                    pdf.addPage();
+                    yPosition = margin;
+                }
+
+                // Titre de la question
+                pdf.setFontSize(11);
+                pdf.setFont(undefined, 'bold');
+                pdf.setTextColor(26, 54, 93);
+                
+                const questionTitle = `Question ${qIdx + 1}: ${q.title}`;
+                const splitTitle = pdf.splitTextToSize(questionTitle, pageWidth - 2 * margin - 10);
+                
+                pdf.setFillColor(237, 137, 54);
+                pdf.rect(margin, yPosition - 4, 3, 8, 'F');
+                pdf.text(splitTitle, margin + 8, yPosition);
+                yPosition += splitTitle.length * 6 + 8;
+
+                // Sous-questions
+                q.subQuestions.forEach((subQ, subIdx) => {
+                    if (yPosition > pageHeight - 40) {
+                        pdf.addPage();
+                        yPosition = margin;
+                    }
+
+                    const userAnswer = answers[qIdx].subAnswers[subIdx];
+                    const isCorrect = userAnswer.feedback === 'correct';
+                    const isIncomplete = userAnswer.feedback === 'incomplete';
+                    
+                    pdf.setFontSize(9);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.setTextColor(0, 0, 0);
+                    
+                    const subQuestionText = pdf.splitTextToSize(`   ${subQ.text}`, pageWidth - 2 * margin - 10);
+                    pdf.text(subQuestionText, margin, yPosition);
+                    yPosition += subQuestionText.length * 5 + 3;
+
+                    // Réponse de l'étudiant
+                    const answerText = `   Reponse: ${userAnswer.answer ? userAnswer.answer.toUpperCase() : 'Non repondu'}`;
+                    if (isCorrect) {
+                        pdf.setTextColor(56, 161, 105);
+                        pdf.text('   ✓', margin, yPosition);
+                        pdf.setTextColor(0, 0, 0);
+                    } else if (!isCorrect && userAnswer.answer) {
+                        pdf.setTextColor(229, 62, 62);
+                        pdf.text('   ✗', margin, yPosition);
+                        pdf.setTextColor(0, 0, 0);
+                    }
+                    pdf.text(answerText, margin + 5, yPosition);
+                    yPosition += 6;
+
+                    // Précisions
+                    if (userAnswer.precision) {
+                        pdf.setFontSize(8);
+                        pdf.setTextColor(100, 100, 100);
+                        const precisionText = pdf.splitTextToSize(`   Precisions: ${userAnswer.precision}`, 
+                                                                 pageWidth - 2 * margin - 10);
+                        pdf.text(precisionText, margin, yPosition);
+                        yPosition += precisionText.length * 4 + 2;
+                        pdf.setTextColor(0, 0, 0);
+                        pdf.setFontSize(9);
+                    }
+
+                    // Statut
+                    pdf.setFont(undefined, 'italic');
+                    if (isCorrect) {
+                        pdf.setTextColor(56, 161, 105);
+                        pdf.text('   Statut: Correct', margin, yPosition);
+                    } else if (isIncomplete) {
+                        pdf.setTextColor(221, 107, 32);
+                        pdf.text('   Statut: Incomplet', margin, yPosition);
+                    } else {
+                        pdf.setTextColor(229, 62, 62);
+                        pdf.text('   Statut: Incorrect', margin, yPosition);
+                    }
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFont(undefined, 'normal');
+                    yPosition += 8;
+                });
+
+                yPosition += 5;
+            });
+
+            // Pied de page
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(150, 150, 150);
+                pdf.text(`Page ${i} sur ${totalPages}`, pageWidth - margin - 20, pageHeight - 10);
+            }
+
+            pdf.save(`Quiz_Incoterms_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // Initialisation au chargement de la page
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
